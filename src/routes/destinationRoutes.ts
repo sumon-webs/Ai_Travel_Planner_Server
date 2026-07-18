@@ -1,0 +1,28 @@
+import { Router } from 'express';
+import { requireAuth } from '../middlewares/requireAuth';
+import {
+  addDestination,
+  getDestinations,
+  getDestinationById,
+  getMyDestinations,
+  deleteDestination,
+} from '../controllers/destinationController';
+
+const router = Router();
+
+/** GET /api/destinations       — All destinations (public) */
+router.get('/', getDestinations);
+
+/** GET /api/destinations/my    — Current user's destinations (auth) */
+router.get('/my', requireAuth, getMyDestinations);
+
+/** GET /api/destinations/:id   — Single destination (public) */
+router.get('/:id', getDestinationById);
+
+/** POST /api/destinations      — Create destination (auth) */
+router.post('/', requireAuth, addDestination);
+
+/** DELETE /api/destinations/:id — Delete destination (auth, owner) */
+router.delete('/:id', requireAuth, deleteDestination);
+
+export default router;
