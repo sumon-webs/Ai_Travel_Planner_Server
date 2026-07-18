@@ -37,6 +37,26 @@ export const getMyTrips = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
+// ─── GET /api/trips/public ─────────────────────────────────────────────────────
+/**
+ * Return latest public trips (no authentication required).
+ */
+export const getPublicTrips = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { limit = '3' } = req.query;
+    const limitNum = Math.min(10, Math.max(1, parseInt(limit as string, 10)));
+
+    const trips = await Trip.find({ isPublic: true })
+      .sort({ createdAt: -1 })
+      .limit(limitNum)
+      .select('title destination durationDays travelers coverImage rating createdAt');
+
+    res.json({ data: trips });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch public trips', error });
+  }
+};
+
 // ─── POST /api/trips ─────────────────────────────────────────────────────────
 /**
  * Create a new trip for the authenticated user.

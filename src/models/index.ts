@@ -21,3 +21,6 @@ export type { IChatHistory, IChatMessage, MessageRole } from './ChatHistory';
 
 export { Destination } from './Destination';
 export type { IDestination } from './Destination';
+
+export { Feedback } from './Feedback';
+export type { IFeedback } from './Feedback';

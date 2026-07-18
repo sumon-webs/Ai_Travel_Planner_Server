@@ -105,7 +105,7 @@ export const deleteDestination = async (req: Request, res: Response): Promise<vo
  */
 export const getDestinationStats = async (_req: Request, res: Response): Promise<void> => {
   try {
-    const activeTripsCount = await Trip.countDocuments();
+    const tripsCount = await Trip.countDocuments();
     const destinationsCount = await Destination.countDocuments();
     const usersCount = await User.countDocuments();
     
@@ -114,16 +114,39 @@ export const getDestinationStats = async (_req: Request, res: Response): Promise
 
     res.json({
       data: {
-        tripsPlanned: activeTripsCount + 51240,
-        destinations: destinationsCount + 120,
-        happyTravelers: usersCount + 18500,
-        countries: uniqueCountries.length + 35,
+        tripsPlanned: tripsCount,
+        destinations: destinationsCount,
+        happyTravelers: usersCount,
+        countries: uniqueCountries.length,
       }
     });
   } catch (error) {
     console.error('Fetch stats error:', error);
     res.status(500).json({
       message: 'Failed to fetch travel statistics',
+      error: error instanceof Error ? error.message : error,
+    });
+  }
+};
+
+/**
+ * Fetch trending destinations (sorted by rating or featured). (Public)
+ */
+export const getTrendingDestinations = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { limit = '6' } = req.query;
+    const limitNum = Math.min(10, Math.max(1, parseInt(limit as string, 10)));
+
+    const destinations = await Destination.find()
+      .sort({ rating: -1, createdAt: -1 })
+      .limit(limitNum)
+      .select('name country city shortDescription price durationDays rating coverImage');
+
+    res.json({ data: destinations });
+  } catch (error) {
+    console.error('Fetch trending destinations error:', error);
+    res.status(500).json({
+      message: 'Failed to fetch trending destinations',
       error: error instanceof Error ? error.message : error,
     });
   }

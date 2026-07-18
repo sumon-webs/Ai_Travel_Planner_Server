@@ -6,12 +6,20 @@ import {
   getDestinationById,
   getMyDestinations,
   deleteDestination,
+  getDestinationStats,
+  getTrendingDestinations,
 } from '../controllers/destinationController';
 
 const router = Router();
 
 /** GET /api/destinations       — All destinations (public) */
 router.get('/', getDestinations);
+
+/** GET /api/destinations/stats     — Travel statistics (public) */
+router.get('/stats', getDestinationStats);
+
+/** GET /api/destinations/trending  — Trending destinations (public) */
+router.get('/trending', getTrendingDestinations);
 
 /** GET /api/destinations/my    — Current user's destinations (auth) */
 router.get('/my', requireAuth, getMyDestinations);

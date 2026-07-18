@@ -6,6 +6,7 @@ import tripRoutes from './routes/tripRoutes';
 import aiRoutes from './routes/aiRoutes';
 import chatRoutes from './routes/chatRoutes';
 import destinationRoutes from './routes/destinationRoutes';
+import feedbackRoutes from './routes/feedbackRoutes';
 
 
 const app: Application = express();
@@ -38,6 +39,7 @@ app.use('/api/trips', tripRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/destinations', destinationRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 
 // Global Error Handler

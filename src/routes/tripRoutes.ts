@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { requireAuth } from '../middlewares/requireAuth';
 import {
   getMyTrips,
+  getPublicTrips,
   addTrip,
   getTripById,
   updateTrip,
@@ -9,6 +10,9 @@ import {
 } from '../controllers/tripController';
 
 const router = Router();
+
+// Public endpoint for latest public trips
+router.get('/public', getPublicTrips);
 
 // All trip routes require an authenticated session
 router.use(requireAuth);
