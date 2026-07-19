@@ -30,7 +30,8 @@ const startServer = async () => {
         host: req.headers.host,
         origin: req.headers.origin,
         referer: req.headers.referer,
-        cookie: req.headers.cookie ? '[REDACTED]' : 'none',
+        cookie: req.headers.cookie ? `Cookie present with ${req.headers.cookie.split(';').length} cookies` : 'NO COOKIE',
+        cookieNames: req.headers.cookie ? req.headers.cookie.split(';').map(c => c.trim().split('=')[0]) : [],
       });
       
       // Global CORS middleware in app.ts already handles CORS correctly

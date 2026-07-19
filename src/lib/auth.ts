@@ -22,6 +22,16 @@ export const getAuth = () => {
     const isCrossOrigin = process.env.CLIENT_URL && process.env.BETTER_AUTH_URL && 
       new URL(process.env.CLIENT_URL).hostname !== new URL(process.env.BETTER_AUTH_URL).hostname;
     
+    // Extract the backend domain for cookie setting
+    const backendDomain = process.env.BETTER_AUTH_URL ? new URL(process.env.BETTER_AUTH_URL).hostname : undefined;
+    
+    console.log('Cookie configuration:', {
+      isProduction,
+      isCrossOrigin,
+      backendDomain,
+      clientDomain: process.env.CLIENT_URL ? new URL(process.env.CLIENT_URL).hostname : undefined,
+    });
+    
     const authConfig: any = {
       baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:5000/api/auth',
       secret: process.env.BETTER_AUTH_SECRET,
@@ -47,9 +57,9 @@ export const getAuth = () => {
           sameSite: (isProduction && isCrossOrigin) ? 'none' : 'lax',
           // Explicitly set path to root for all requests
           path: '/',
-          // For cross-origin, ensure domain is not set (browser handles it)
-          // For same-origin, also don't set domain
-          domain: undefined,
+          // For cross-origin, set domain to backend domain so browser knows which domain the cookie belongs to
+          // For same-origin (localhost), don't set domain
+          domain: (isProduction && isCrossOrigin) ? backendDomain : undefined,
           // Add cookie hooks for debugging
           setCookie: (cookie: any) => {
             console.log('[Better Auth] Setting cookie:', {
