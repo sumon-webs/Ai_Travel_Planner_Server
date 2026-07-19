@@ -3,7 +3,7 @@ import {
   createFeedback,
   getAllFeedback,
   deleteFeedback,
-} from '../controllers/feedbackController';
+} from '../controllers/feedbackController.js';
 
 const router = Router();
 

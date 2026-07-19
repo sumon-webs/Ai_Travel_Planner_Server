@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { generateTripPrompt } from '../prompts/tripPrompt';
-import { generateContent } from '../services/geminiService';
-import { Trip } from '../models';
+import { generateTripPrompt } from '../prompts/tripPrompt.js';
+import { generateContent } from '../services/geminiService.js';
+import { Trip } from '../models/index.js';
 
 export const generateTrip = async (req: Request, res: Response): Promise<void> => {
   try {

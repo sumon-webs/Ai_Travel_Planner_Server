@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../middlewares/requireAuth';
+import { requireAuth } from '../middlewares/requireAuth.js';
 import {
   addDestination,
   getDestinations,
@@ -8,7 +8,7 @@ import {
   deleteDestination,
   getDestinationStats,
   getTrendingDestinations,
-} from '../controllers/destinationController';
+} from '../controllers/destinationController.js';
 
 const router = Router();
 

@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { requireAuth } from '../middlewares/requireAuth';
+import { requireAuth } from '../middlewares/requireAuth.js';
 import {
   getChatHistory,
   sendMessage,
   clearChatHistory,
-} from '../controllers/chatController';
+} from '../controllers/chatController.js';
 
 const router = Router();
 

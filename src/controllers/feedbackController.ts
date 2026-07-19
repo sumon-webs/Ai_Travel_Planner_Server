@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Feedback } from '../models';
+import { Feedback } from '../models/index.js';
 
 // ─── POST /api/feedback ─────────────────────────────────────────────────────────
 /**

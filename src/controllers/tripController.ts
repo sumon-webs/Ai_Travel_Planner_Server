@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Trip } from '../models';
+import { Trip } from '../models/index.js';
 
 // ─── GET /api/trips ──────────────────────────────────────────────────────────
 /**

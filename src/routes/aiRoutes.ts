@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { requireAuth } from '../middlewares/requireAuth';
-import { generateTrip } from '../controllers/aiController';
+import { requireAuth } from '../middlewares/requireAuth.js';
+import { generateTrip } from '../controllers/aiController.js';
 
 const router = Router();
 

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { Trip, ChatHistory } from '../models';
-import { getGenAI } from '../services/geminiService';
+import { Trip, ChatHistory } from '../models/index.js';
+import { getGenAI } from '../services/geminiService.js';
 
 /**
  * GET /api/chats/:tripId

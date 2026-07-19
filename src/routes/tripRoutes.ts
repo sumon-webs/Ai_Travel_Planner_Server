@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../middlewares/requireAuth';
+import { requireAuth } from '../middlewares/requireAuth.js';
 import {
   getMyTrips,
   getPublicTrips,
@@ -7,7 +7,7 @@ import {
   getTripById,
   updateTrip,
   deleteTrip,
-} from '../controllers/tripController';
+} from '../controllers/tripController.js';
 
 const router = Router();
 

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Destination, User, Trip } from '../models';
+import { Destination, User, Trip } from '../models/index.js';
 
 /**
  * Create a new destination. (Auth required)

@@ -1,12 +1,12 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { toNodeHandler } from 'better-auth/node';
-import { auth } from './lib/auth';
-import tripRoutes from './routes/tripRoutes';
-import aiRoutes from './routes/aiRoutes';
-import chatRoutes from './routes/chatRoutes';
-import destinationRoutes from './routes/destinationRoutes';
-import feedbackRoutes from './routes/feedbackRoutes';
+import { auth } from './lib/auth.js';
+import tripRoutes from './routes/tripRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
+import chatRoutes from './routes/chatRoutes.js';
+import destinationRoutes from './routes/destinationRoutes.js';
+import feedbackRoutes from './routes/feedbackRoutes.js';
 
 
 const app: Application = express();
