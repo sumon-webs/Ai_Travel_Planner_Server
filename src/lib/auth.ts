@@ -27,6 +27,14 @@ export const getAuth = () => {
       secret: process.env.BETTER_AUTH_SECRET,
       database: mongodbAdapter(db),
       trustedOrigins: [process.env.CLIENT_URL || 'http://localhost:3000'],
+      session: {
+        expiresIn: 60 * 60 * 24 * 30, // 30 days in seconds
+        updateAge: 60 * 60 * 24, // 1 day in seconds - update session every day
+        cookieCache: {
+          enabled: true,
+          maxAge: 5, // Cache session for 5 seconds
+        },
+      },
       advanced: {
         useSecureCookies: isProduction,
         cookiePrefix: 'better-auth',
@@ -42,6 +50,57 @@ export const getAuth = () => {
           // For cross-origin, ensure domain is not set (browser handles it)
           // For same-origin, also don't set domain
           domain: undefined,
+        },
+        // Add database hooks for debugging session lifecycle
+        databaseHooks: {
+          user: {
+            create: {
+              before: async (user: any) => {
+                console.log('[Better Auth] Creating user:', { email: user.email, id: user.id });
+                return user;
+              },
+              after: async (user: any) => {
+                console.log('[Better Auth] User created successfully:', { id: user.id, email: user.email });
+              },
+            },
+          },
+          session: {
+            create: {
+              before: async (session: any) => {
+                console.log('[Better Auth] Creating session:', { userId: session.userId, sessionId: session.id });
+                return session;
+              },
+              after: async (session: any) => {
+                console.log('[Better Auth] Session created successfully:', { 
+                  sessionId: session.id, 
+                  userId: session.userId,
+                  expiresAt: session.expiresAt 
+                });
+              },
+            },
+            get: {
+              before: async (session: any) => {
+                console.log('[Better Auth] Retrieving session:', { sessionId: session?.id || session });
+                return session;
+              },
+              after: async (session: any) => {
+                console.log('[Better Auth] Session retrieved:', { 
+                  sessionId: session?.id, 
+                  userId: session?.userId,
+                  found: !!session 
+                });
+              },
+            },
+            delete: {
+              before: async (session: any) => {
+                console.log('[Better Auth] Deleting session:', { sessionId: session?.id || session });
+                return session;
+              },
+              after: async (session: any) => {
+                console.log('[Better Auth] Session deleted successfully:', { sessionId: session?.id });
+              },
+            },
+          },
         },
       },
       emailAndPassword: {
