@@ -50,6 +50,27 @@ export const getAuth = () => {
           // For cross-origin, ensure domain is not set (browser handles it)
           // For same-origin, also don't set domain
           domain: undefined,
+          // Add cookie hooks for debugging
+          setCookie: (cookie: any) => {
+            console.log('[Better Auth] Setting cookie:', {
+              name: cookie.name,
+              value: cookie.value ? cookie.value.substring(0, 20) + '...' : 'empty',
+              attributes: {
+                httpOnly: cookie.attributes?.httpOnly,
+                secure: cookie.attributes?.secure,
+                sameSite: cookie.attributes?.sameSite,
+                path: cookie.attributes?.path,
+                domain: cookie.attributes?.domain,
+                maxAge: cookie.attributes?.maxAge,
+                expires: cookie.attributes?.expires,
+              },
+            });
+          },
+          deleteCookie: (cookie: any) => {
+            console.log('[Better Auth] Deleting cookie:', {
+              name: cookie.name,
+            });
+          },
         },
         // Add database hooks for debugging session lifecycle
         databaseHooks: {
@@ -64,6 +85,25 @@ export const getAuth = () => {
               },
             },
           },
+          account: {
+            create: {
+              before: async (account: any) => {
+                console.log('[Better Auth] Creating account:', { 
+                  userId: account.userId, 
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId 
+                });
+                return account;
+              },
+              after: async (account: any) => {
+                console.log('[Better Auth] Account created successfully:', { 
+                  accountId: account.id,
+                  userId: account.userId,
+                  provider: account.provider 
+                });
+              },
+            },
+          },
           session: {
             create: {
               before: async (session: any) => {
@@ -74,7 +114,8 @@ export const getAuth = () => {
                 console.log('[Better Auth] Session created successfully:', { 
                   sessionId: session.id, 
                   userId: session.userId,
-                  expiresAt: session.expiresAt 
+                  expiresAt: session.expiresAt,
+                  token: session.token ? session.token.substring(0, 20) + '...' : 'none'
                 });
               },
             },
@@ -87,7 +128,8 @@ export const getAuth = () => {
                 console.log('[Better Auth] Session retrieved:', { 
                   sessionId: session?.id, 
                   userId: session?.userId,
-                  found: !!session 
+                  found: !!session,
+                  expired: session?.expiresAt ? new Date(session.expiresAt) < new Date() : 'unknown'
                 });
               },
             },
