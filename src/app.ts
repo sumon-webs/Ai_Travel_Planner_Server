@@ -9,6 +9,9 @@ import feedbackRoutes from './routes/feedbackRoutes.js';
 
 const app: Application = express();
 
+// Trust proxy - required for production deployment behind reverse proxy (Render)
+app.set('trust proxy', true);
+
 // CORS — must be before all handlers
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:3000',

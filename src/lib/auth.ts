@@ -16,19 +16,27 @@ export const getAuth = () => {
     const db = getDb();
     console.log('Database connected, creating auth instance...');
     
+    // In production with cross-origin deployment (Vercel + Render), 
+    // we need SameSite: 'none' for cookies to work across domains
+    const isProduction = process.env.NODE_ENV === 'production';
+    const isCrossOrigin = process.env.CLIENT_URL && process.env.BETTER_AUTH_URL && 
+      new URL(process.env.CLIENT_URL).hostname !== new URL(process.env.BETTER_AUTH_URL).hostname;
+    
     const authConfig: any = {
       baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:5000/api/auth',
       secret: process.env.BETTER_AUTH_SECRET,
       database: mongodbAdapter(db),
       trustedOrigins: [process.env.CLIENT_URL || 'http://localhost:3000'],
       advanced: {
-        useSecureCookies: process.env.NODE_ENV === 'production',
+        useSecureCookies: isProduction,
         cookiePrefix: 'better-auth',
         crossSubDomainCookies: {
           enabled: false,
         },
         cookies: {
-          sameSite: 'lax',
+          // For cross-origin deployment (Vercel + Render), use 'none' with Secure
+          // For same-origin (localhost), use 'lax'
+          sameSite: (isProduction && isCrossOrigin) ? 'none' : 'lax',
         },
       },
       emailAndPassword: {
@@ -48,6 +56,9 @@ export const getAuth = () => {
       baseURL: authConfig.baseURL,
       trustedOrigins: authConfig.trustedOrigins,
       useSecureCookies: authConfig.advanced.useSecureCookies,
+      sameSite: authConfig.advanced.cookies.sameSite,
+      isProduction,
+      isCrossOrigin,
     });
     
     authInstance = betterAuth(authConfig);

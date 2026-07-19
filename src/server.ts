@@ -26,7 +26,12 @@ const startServer = async () => {
     // Mount Better Auth handler at /api/auth with proper wildcard
     app.all('/api/auth/*', (req, res) => {
       console.log(`Better Auth request: ${req.method} ${req.url}`);
-      console.log('Request headers:', req.headers);
+      console.log('Request headers:', {
+        host: req.headers.host,
+        origin: req.headers.origin,
+        referer: req.headers.referer,
+        cookie: req.headers.cookie ? '[REDACTED]' : 'none',
+      });
       
       // Add CORS headers manually for Better Auth routes
       const origin = process.env.CLIENT_URL || 'http://localhost:3000';
@@ -47,6 +52,8 @@ const startServer = async () => {
     // Start listening
     app.listen(PORT, () => {
       console.log(`Server is listening on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+      console.log(`Client URL: ${process.env.CLIENT_URL}`);
+      console.log(`Better Auth URL: ${process.env.BETTER_AUTH_URL}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
