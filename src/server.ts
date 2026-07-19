@@ -17,6 +17,21 @@ const startServer = async () => {
     // Initialize database indexes
     await initializeIndexes();
 
+    // Verify database connection and collections
+    const db = (await import('./config/db.js')).getDb();
+    console.log('=== DATABASE CONNECTION VERIFICATION ===');
+    console.log('Database name:', db.databaseName);
+    console.log('Collections:', (await db.listCollections().toArray()).map(c => c.name));
+    
+    // Check session collection
+    const sessionCount = await db.collection('session').countDocuments();
+    console.log('Session collection count:', sessionCount);
+    
+    // Check user collection
+    const userCount = await db.collection('user').countDocuments();
+    console.log('User collection count:', userCount);
+    console.log('=======================================');
+
     // Add Better Auth routes after database is connected
     const { getAuth } = await import('./lib/auth.js');
     const auth = getAuth();
@@ -33,6 +48,19 @@ const startServer = async () => {
         cookie: req.headers.cookie ? `Cookie present with ${req.headers.cookie.split(';').length} cookies` : 'NO COOKIE',
         cookieNames: req.headers.cookie ? req.headers.cookie.split(';').map(c => c.trim().split('=')[0]) : [],
       });
+      
+      // Log response for get-session specifically
+      if (req.url.includes('get-session')) {
+        const originalSend = res.send;
+        res.send = function(data) {
+          console.log('[Better Auth] GET /api/auth/get-session response:', {
+            statusCode: res.statusCode,
+            responseBody: data ? (typeof data === 'string' ? data.substring(0, 200) : JSON.stringify(data).substring(0, 200)) : 'empty',
+            hasUser: data && typeof data === 'object' && 'user' in data
+          });
+          return originalSend.call(this, data);
+        };
+      }
       
       // Global CORS middleware in app.ts already handles CORS correctly
       // No need to duplicate CORS headers here

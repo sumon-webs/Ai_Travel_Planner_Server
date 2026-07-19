@@ -127,6 +127,16 @@ export const getAuth = () => {
                   expiresAt: session.expiresAt,
                   token: session.token ? session.token.substring(0, 20) + '...' : 'none'
                 });
+                
+                // Verify session was actually inserted into MongoDB
+                const db = getDb();
+                const insertedSession = await db.collection('session').findOne({ _id: session.id });
+                console.log('[Better Auth] Session verification in MongoDB:', {
+                  found: !!insertedSession,
+                  sessionId: insertedSession?._id,
+                  userId: insertedSession?.userId,
+                  expiresAt: insertedSession?.expiresAt
+                });
               },
             },
             get: {
@@ -141,6 +151,17 @@ export const getAuth = () => {
                   found: !!session,
                   expired: session?.expiresAt ? new Date(session.expiresAt) < new Date() : 'unknown'
                 });
+                
+                if (!session) {
+                  console.log('[Better Auth] Session lookup returned null - investigating...');
+                  const db = getDb();
+                  const allSessions = await db.collection('session').find({}).limit(5).toArray();
+                  console.log('[Better Auth] Sample sessions in database:', allSessions.map(s => ({
+                    _id: s._id,
+                    userId: s.userId,
+                    expiresAt: s.expiresAt
+                  })));
+                }
               },
             },
             delete: {
