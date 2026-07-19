@@ -37,6 +37,11 @@ export const getAuth = () => {
           // For cross-origin deployment (Vercel + Render), use 'none' with Secure
           // For same-origin (localhost), use 'lax'
           sameSite: (isProduction && isCrossOrigin) ? 'none' : 'lax',
+          // Explicitly set path to root for all requests
+          path: '/',
+          // For cross-origin, ensure domain is not set (browser handles it)
+          // For same-origin, also don't set domain
+          domain: undefined,
         },
       },
       emailAndPassword: {

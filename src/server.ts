@@ -33,12 +33,8 @@ const startServer = async () => {
         cookie: req.headers.cookie ? '[REDACTED]' : 'none',
       });
       
-      // Add CORS headers manually for Better Auth routes
-      const origin = process.env.CLIENT_URL || 'http://localhost:3000';
-      res.header('Access-Control-Allow-Origin', origin);
-      res.header('Access-Control-Allow-Credentials', 'true');
-      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      // Global CORS middleware in app.ts already handles CORS correctly
+      // No need to duplicate CORS headers here
       
       if (req.method === 'OPTIONS') {
         console.log('OPTIONS request - sending 200');
