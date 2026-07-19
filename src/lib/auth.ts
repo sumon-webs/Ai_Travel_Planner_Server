@@ -9,6 +9,10 @@ let authInstance: ReturnType<typeof betterAuth> | null = null;
 export const getAuth = () => {
   if (!authInstance) {
     console.log('Initializing Better Auth...');
+    console.log('BETTER_AUTH_URL:', process.env.BETTER_AUTH_URL);
+    console.log('CLIENT_URL:', process.env.CLIENT_URL);
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    
     const db = getDb();
     console.log('Database connected, creating auth instance...');
     
@@ -23,6 +27,9 @@ export const getAuth = () => {
         crossSubDomainCookies: {
           enabled: false,
         },
+        cookies: {
+          sameSite: 'lax',
+        },
       },
       emailAndPassword: {
         enabled: true,
@@ -36,6 +43,12 @@ export const getAuth = () => {
         },
       },
     };
+    
+    console.log('Auth config:', {
+      baseURL: authConfig.baseURL,
+      trustedOrigins: authConfig.trustedOrigins,
+      useSecureCookies: authConfig.advanced.useSecureCookies,
+    });
     
     authInstance = betterAuth(authConfig);
     console.log('Better Auth initialized successfully');
