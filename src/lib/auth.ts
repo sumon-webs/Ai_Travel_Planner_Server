@@ -21,6 +21,10 @@ export const auth = betterAuth({
     process.env.CLIENT_URL || 'http://localhost:3000',
   ],
 
+  advanced: {
+    useSecureCookies: true,
+  },
+
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
