@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { Destination, User, Trip } from '../models/index.js';
+import { ObjectId } from 'mongodb';
+import { getDestinationsCollection, getTripsCollection, getProfilesCollection } from '../config/collections.js';
 
 /**
  * Create a new destination. (Auth required)
@@ -24,13 +25,19 @@ export const addDestination = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    const destination = await Destination.create({
+    const destinationData = {
       name, country, city, shortDescription, description,
       price: Number(price), durationDays: Number(durationDays),
       category, bestSeason, rating: Number(rating),
       coverImage, galleryImages: galleryImages || [], userId,
-    });
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
+    const collection = getDestinationsCollection();
+    const result = await collection.insertOne(destinationData);
+    
+    const destination = { ...destinationData, _id: result.insertedId.toString() };
     res.status(201).json({ message: 'Destination created successfully', data: destination });
   } catch (error) {
     console.error('Create destination error:', error);
@@ -43,7 +50,8 @@ export const addDestination = async (req: Request, res: Response): Promise<void>
  */
 export const getDestinations = async (_req: Request, res: Response): Promise<void> => {
   try {
-    const destinations = await Destination.find().sort({ createdAt: -1 });
+    const collection = getDestinationsCollection();
+    const destinations = await collection.find().sort({ createdAt: -1 }).toArray();
     res.json({ data: destinations });
   } catch (error) {
     console.error('Fetch destinations error:', error);
@@ -56,7 +64,8 @@ export const getDestinations = async (_req: Request, res: Response): Promise<voi
  */
 export const getDestinationById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const destination = await Destination.findById(req.params.id);
+    const collection = getDestinationsCollection();
+    const destination = await collection.findOne({ _id: new ObjectId(req.params.id) });
     if (!destination) {
       res.status(404).json({ message: 'Destination not found' });
       return;
@@ -74,7 +83,8 @@ export const getDestinationById = async (req: Request, res: Response): Promise<v
 export const getMyDestinations = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).userId as string;
-    const destinations = await Destination.find({ userId }).sort({ createdAt: -1 });
+    const collection = getDestinationsCollection();
+    const destinations = await collection.find({ userId }).sort({ createdAt: -1 }).toArray();
     res.json({ data: destinations });
   } catch (error) {
     console.error('Fetch my destinations error:', error);
@@ -88,7 +98,11 @@ export const getMyDestinations = async (req: Request, res: Response): Promise<vo
 export const deleteDestination = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).userId as string;
-    const destination = await Destination.findOneAndDelete({ _id: req.params.id, userId });
+    const collection = getDestinationsCollection();
+    const destination = await collection.findOneAndDelete({ 
+      _id: new ObjectId(req.params.id), 
+      userId 
+    });
     if (!destination) {
       res.status(404).json({ message: 'Destination not found or you are not the owner.' });
       return;
@@ -105,12 +119,18 @@ export const deleteDestination = async (req: Request, res: Response): Promise<vo
  */
 export const getDestinationStats = async (_req: Request, res: Response): Promise<void> => {
   try {
-    const tripsCount = await Trip.countDocuments();
-    const destinationsCount = await Destination.countDocuments();
-    const usersCount = await User.countDocuments();
+    const tripsCollection = getTripsCollection();
+    const destinationsCollection = getDestinationsCollection();
+    const profilesCollection = getProfilesCollection();
+    
+    const [tripsCount, destinationsCount, usersCount] = await Promise.all([
+      tripsCollection.countDocuments(),
+      destinationsCollection.countDocuments(),
+      profilesCollection.countDocuments(),
+    ]);
     
     // Unique countries from destinations
-    const uniqueCountries = await Destination.distinct('country');
+    const uniqueCountries = await destinationsCollection.distinct('country');
 
     res.json({
       data: {
@@ -137,10 +157,22 @@ export const getTrendingDestinations = async (req: Request, res: Response): Prom
     const { limit = '6' } = req.query;
     const limitNum = Math.min(10, Math.max(1, parseInt(limit as string, 10)));
 
-    const destinations = await Destination.find()
+    const collection = getDestinationsCollection();
+    const destinations = await collection
+      .find()
       .sort({ rating: -1, createdAt: -1 })
       .limit(limitNum)
-      .select('name country city shortDescription price durationDays rating coverImage');
+      .project({
+        name: 1,
+        country: 1,
+        city: 1,
+        shortDescription: 1,
+        price: 1,
+        durationDays: 1,
+        rating: 1,
+        coverImage: 1,
+      })
+      .toArray();
 
     res.json({ data: destinations });
   } catch (error) {

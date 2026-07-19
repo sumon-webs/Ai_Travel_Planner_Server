@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { Trip } from '../models/index.js';
+import { ObjectId } from 'mongodb';
+import { getTripsCollection } from '../config/collections.js';
 
 // ─── GET /api/trips ──────────────────────────────────────────────────────────
 /**
@@ -18,9 +19,15 @@ export const getMyTrips = async (req: Request, res: Response): Promise<void> => 
     const limitNum = Math.min(100, Math.max(1, parseInt(limit as string, 10)));
     const skip = (pageNum - 1) * limitNum;
 
+    const collection = getTripsCollection();
     const [trips, total] = await Promise.all([
-      Trip.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limitNum),
-      Trip.countDocuments(filter),
+      collection
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .toArray(),
+      collection.countDocuments(filter),
     ]);
 
     res.json({
@@ -46,10 +53,21 @@ export const getPublicTrips = async (req: Request, res: Response): Promise<void>
     const { limit = '3' } = req.query;
     const limitNum = Math.min(10, Math.max(1, parseInt(limit as string, 10)));
 
-    const trips = await Trip.find({ isPublic: true })
+    const collection = getTripsCollection();
+    const trips = await collection
+      .find({ isPublic: true })
       .sort({ createdAt: -1 })
       .limit(limitNum)
-      .select('title destination durationDays travelers coverImage rating createdAt');
+      .project({
+        title: 1,
+        destination: 1,
+        durationDays: 1,
+        travelers: 1,
+        coverImage: 1,
+        rating: 1,
+        createdAt: 1,
+      })
+      .toArray();
 
     res.json({ data: trips });
   } catch (error) {
@@ -65,13 +83,22 @@ export const addTrip = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).userId as string;
 
-    const trip = await Trip.create({ ...req.body, userId });
-    console.log(trip)
+    const { _id, ...tripDataWithoutId } = req.body;
+    const tripData = {
+      ...tripDataWithoutId,
+      userId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const collection = getTripsCollection();
+    const result = await collection.insertOne(tripData);
+    
+    const trip = { ...tripData, _id: result.insertedId.toString() };
+    console.log(trip);
     res.status(201).json({ message: 'Trip created successfully', data: trip });
   } catch (error) {
-
     console.log("CREATE TRIP ERROR:", error);
-
     res.status(400).json({
       message: 'Failed to create trip',
       error
@@ -86,7 +113,12 @@ export const addTrip = async (req: Request, res: Response): Promise<void> => {
 export const getTripById = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).userId as string;
-    const trip = await Trip.findOne({ _id: req.params.id, userId });
+    const collection = getTripsCollection();
+    
+    const trip = await collection.findOne({
+      _id: new ObjectId(req.params.id),
+      userId,
+    });
 
     if (!trip) {
       res.status(404).json({ message: 'Trip not found' });
@@ -106,11 +138,17 @@ export const getTripById = async (req: Request, res: Response): Promise<void> =>
 export const updateTrip = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).userId as string;
+    const collection = getTripsCollection();
 
-    const trip = await Trip.findOneAndUpdate(
-      { _id: req.params.id, userId },
-      { $set: req.body },
-      { new: true, runValidators: true }
+    const updateData = {
+      ...req.body,
+      updatedAt: new Date(),
+    };
+
+    const trip = await collection.findOneAndUpdate(
+      { _id: new ObjectId(req.params.id), userId },
+      { $set: updateData },
+      { returnDocument: 'after' }
     );
 
     if (!trip) {
@@ -131,8 +169,12 @@ export const updateTrip = async (req: Request, res: Response): Promise<void> => 
 export const deleteTrip = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).userId as string;
+    const collection = getTripsCollection();
 
-    const trip = await Trip.findOneAndDelete({ _id: req.params.id, userId });
+    const trip = await collection.findOneAndDelete({
+      _id: new ObjectId(req.params.id),
+      userId,
+    });
 
     if (!trip) {
       res.status(404).json({ message: 'Trip not found' });

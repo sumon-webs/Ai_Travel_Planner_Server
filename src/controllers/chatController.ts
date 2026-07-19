@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { Trip, ChatHistory } from '../models/index.js';
+import { ObjectId } from 'mongodb';
+import { getTripsCollection, getChatHistoriesCollection } from '../config/collections.js';
 import { getGenAI } from '../services/geminiService.js';
 
 /**
@@ -16,7 +17,8 @@ export const getChatHistory = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    const chatHistory = await ChatHistory.findOne({ userId, tripId });
+    const collection = getChatHistoriesCollection();
+    const chatHistory = await collection.findOne({ userId, tripId });
     
     res.status(200).json({
       status: 'success',
@@ -52,8 +54,9 @@ export const sendMessage = async (req: Request, res: Response): Promise<void> =>
     }
 
     // 1. Fetch Selected Trip context
-    const trip = await Trip.findOne({
-      _id: tripId,
+    const tripsCollection = getTripsCollection();
+    const trip = await tripsCollection.findOne({
+      _id: new ObjectId(tripId),
       $or: [{ createdBy: userId }, { userId: userId }]
     });
 
@@ -63,20 +66,27 @@ export const sendMessage = async (req: Request, res: Response): Promise<void> =>
     }
 
     // 2. Fetch or create ChatHistory
-    let chatHistory = await ChatHistory.findOne({ userId, tripId });
+    const chatCollection = getChatHistoriesCollection();
+    let chatHistory = await chatCollection.findOne({ userId, tripId });
+    
     if (!chatHistory) {
-      chatHistory = new ChatHistory({
+      const newChatHistory = {
         userId,
         tripId,
         title: `Chat for ${trip.title}`,
         messages: [],
-        aiModel: 'gemini-flash-lite-latest'
-      });
+        aiModel: 'gemini-flash-lite-latest',
+        totalTokens: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      const result = await chatCollection.insertOne(newChatHistory);
+      chatHistory = { ...newChatHistory, _id: result.insertedId };
     }
 
     // 3. Format message history for Gemini (roles: 'user' and 'model')
     // We map 'assistant' to 'model'
-    const geminiHistory = chatHistory.messages.map(m => ({
+    const geminiHistory = chatHistory.messages.map((m: any) => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.content }]
     }));
@@ -88,9 +98,9 @@ export const sendMessage = async (req: Request, res: Response): Promise<void> =>
 
     const systemInstruction = `You are an expert AI Travel Assistant with deep knowledge of global destinations, local cultures, cuisines, and travel logistics. You are currently helping the user plan and refine their trip: "${trip.title}" to "${tripDest}".
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━
 TRIP CONTEXT (use this as your source of truth):
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━
 - Destination: ${tripDest}
 - Trip Summary: ${trip.summary || 'No summary available.'}
 - Budget: ${trip.estimatedBudget || (trip.budget ? `${trip.currency || 'USD'} ${trip.budget}` : 'Not specified')}
@@ -101,9 +111,9 @@ TRIP CONTEXT (use this as your source of truth):
 - Full Day-by-Day Itinerary:
 ${JSON.stringify(trip.itinerary, null, 2)}
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━
 YOUR CAPABILITIES & BEHAVIOR RULES:
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━
 
 BUDGET ADVICE:
   - When asked about reducing costs, provide specific actionable alternatives: free attractions, street food vs. restaurants, public transit vs. taxis, budget hostels vs. hotels.
@@ -170,19 +180,26 @@ GENERAL BEHAVIOR:
     }
 
     // 9. Save new messages to MongoDB
-    chatHistory.messages.push({
-      role: 'user',
-      content: content.trim(),
-      timestamp: new Date()
-    });
-    chatHistory.messages.push({
-      role: 'assistant',
-      content: assistantResponse,
-      timestamp: new Date()
-    });
-    
-    // Save updated history
-    await chatHistory.save();
+    const newMessages = [
+      {
+        role: 'user',
+        content: content.trim(),
+        timestamp: new Date()
+      },
+      {
+        role: 'assistant',
+        content: assistantResponse,
+        timestamp: new Date()
+      }
+    ];
+
+    await chatCollection.updateOne(
+      { _id: chatHistory._id },
+      {
+        $push: { messages: { $each: newMessages } } as any,
+        $set: { updatedAt: new Date() }
+      }
+    );
 
     // 10. Send end marker and close connection
     res.write('data: [DONE]\n\n');
@@ -216,7 +233,8 @@ export const clearChatHistory = async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    await ChatHistory.deleteOne({ userId, tripId });
+    const collection = getChatHistoriesCollection();
+    await collection.deleteOne({ userId, tripId });
 
     res.status(200).json({
       status: 'success',

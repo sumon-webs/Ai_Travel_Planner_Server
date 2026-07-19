@@ -65,12 +65,23 @@ The first character must be '{' and the last character must be '}'.`,
 
 /**
  * Strips markdown code fences (```json ... ``` or ``` ... ```) from a string.
+ * Also removes any text that might appear after the JSON object.
  * This is a safety net — with responseMimeType: 'application/json' Gemini
  * should never add fences, but this guards against edge cases.
  */
 function stripMarkdownFences(text: string): string {
-  return text
+  let cleaned = text
     .replace(/^```(?:json)?\s*/i, '')
     .replace(/\s*```\s*$/i, '')
     .trim();
+  
+  // Find the first '{' and the last '}' to extract just the JSON object
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
+  
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+  }
+  
+  return cleaned;
 }

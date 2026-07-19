@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import { auth } from '../lib/auth.js';
 import { fromNodeHeaders } from 'better-auth/node';
 
 // Extend Express Request to carry the authenticated session
@@ -25,6 +24,9 @@ export const requireAuth = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    // Dynamically import getAuth to avoid circular dependency during module loading
+    const { getAuth } = await import('../lib/auth.js');
+    const auth = getAuth();
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(req.headers),
     });

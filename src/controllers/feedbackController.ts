@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { Feedback } from '../models/index.js';
+import { ObjectId } from 'mongodb';
+import { getFeedbackCollection } from '../config/collections.js';
 
 // ─── POST /api/feedback ─────────────────────────────────────────────────────────
 /**
@@ -22,14 +23,20 @@ export const createFeedback = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    const feedback = await Feedback.create({
+    const feedbackData = {
       name,
       email,
       subject,
       message,
       rating,
-    });
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
+    const collection = getFeedbackCollection();
+    const result = await collection.insertOne(feedbackData);
+
+    const feedback = { ...feedbackData, _id: result.insertedId.toString() };
     res.status(201).json({
       message: 'Feedback submitted successfully',
       data: feedback,
@@ -53,9 +60,12 @@ export const getAllFeedback = async (req: Request, res: Response): Promise<void>
     const { limit = '50' } = req.query;
     const limitNum = Math.min(100, Math.max(1, parseInt(limit as string, 10)));
 
-    const feedback = await Feedback.find()
+    const collection = getFeedbackCollection();
+    const feedback = await collection
+      .find()
       .sort({ createdAt: -1 })
-      .limit(limitNum);
+      .limit(limitNum)
+      .toArray();
 
     res.json({
       data: feedback,
@@ -77,7 +87,10 @@ export const getAllFeedback = async (req: Request, res: Response): Promise<void>
  */
 export const deleteFeedback = async (req: Request, res: Response): Promise<void> => {
   try {
-    const feedback = await Feedback.findByIdAndDelete(req.params.id);
+    const collection = getFeedbackCollection();
+    const feedback = await collection.findOneAndDelete({ 
+      _id: new ObjectId(req.params.id) 
+    });
 
     if (!feedback) {
       res.status(404).json({ message: 'Feedback not found' });

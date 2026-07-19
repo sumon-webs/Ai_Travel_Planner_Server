@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "node --loader ts-node/esm src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js"
   },
@@ -22,11 +22,10 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "mongodb": "^7.5.0",
-    "mongoose": "^8.4.1"
+    "mongodb": "^7.5.0"
   },
   "devDependencies": {
-    "ts-node-dev": "^2.0.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   }
 }

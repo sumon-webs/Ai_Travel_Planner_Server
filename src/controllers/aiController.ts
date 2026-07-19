@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { generateTripPrompt } from '../prompts/tripPrompt.js';
 import { generateContent } from '../services/geminiService.js';
-import { Trip } from '../models/index.js';
+import { getTripsCollection } from '../config/collections.js';
 
 export const generateTrip = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -81,7 +81,7 @@ export const generateTrip = async (req: Request, res: Response): Promise<void> =
     }
 
     // Save generated trip into MongoDB — store full AI response structure
-    const savedTrip = await Trip.create({
+    const tripDataToSave = {
       // AI-generated fields (stored as-is, matching the AI response schema)
       title:           tripData.title,
       summary:         tripData.summary,
@@ -104,7 +104,14 @@ export const generateTrip = async (req: Request, res: Response): Promise<void> =
       createdBy:    userId,
       userId:       userId, // backwards compatibility
       aiGenerated:  true,
-    });
+      createdAt:    new Date(),
+      updatedAt:    new Date(),
+    };
+
+    const collection = getTripsCollection();
+    const result = await collection.insertOne(tripDataToSave);
+    
+    const savedTrip = { ...tripDataToSave, _id: result.insertedId.toString() };
 
     res.status(200).json({
       status: 'success',

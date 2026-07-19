@@ -1,7 +1,5 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
-import { toNodeHandler } from 'better-auth/node';
-import { auth } from './lib/auth.js';
 import tripRoutes from './routes/tripRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
@@ -17,11 +15,7 @@ app.use(cors({
   credentials: true,
 }));
 
-// Better Auth handler — must be mounted BEFORE express.json()
-// so Better Auth can parse its own request body
-app.all('/api/auth/*', toNodeHandler(auth));
-
-// Body parsing middleware (after Better Auth)
+// Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
