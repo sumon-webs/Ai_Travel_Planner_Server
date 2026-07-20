@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { requireAuth } from '../middlewares/requireAuth.js';
 import {
   getChatHistory,
   sendMessage,
@@ -7,9 +6,6 @@ import {
 } from '../controllers/chatController.js';
 
 const router = Router();
-
-// Ensure all chat assistant endpoints are authenticated
-router.use(requireAuth);
 
 /**
  * GET    /api/chats/:tripId         — get chat conversation history

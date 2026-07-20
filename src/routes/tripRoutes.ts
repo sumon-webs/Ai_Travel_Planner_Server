@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { requireAuth } from '../middlewares/requireAuth.js';
 import {
   getMyTrips,
   getPublicTrips,
@@ -14,12 +13,9 @@ const router = Router();
 // Public endpoint for latest public trips
 router.get('/public', getPublicTrips);
 
-// All trip routes require an authenticated session
-router.use(requireAuth);
-
 /**
- * GET  /api/trips        — list all trips for the authenticated user (filterable, paginated)
- * POST /api/trips        — create a new trip
+ * GET  /api/trips        — list all trips (public)
+ * POST /api/trips        — create a new trip (public)
  */
 router.get('/', getMyTrips);
 router.post('/', addTrip);
