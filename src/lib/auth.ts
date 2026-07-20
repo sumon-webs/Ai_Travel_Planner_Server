@@ -28,6 +28,18 @@ export const initializeAuth = () => {
     advanced: {
       useSecureCookies: isProduction,
       cookiePrefix: 'better-auth',
+      crossSubDomainCookies: {
+        enabled: true,
+      },
+      cookies: {
+        sessionToken: {
+          name: 'better-auth.session_token',
+          attributes: {
+            sameSite: isProduction ? 'none' : 'lax',
+            secure: isProduction,
+          },
+        },
+      },
     },
     account: {
       accountLinking: {
