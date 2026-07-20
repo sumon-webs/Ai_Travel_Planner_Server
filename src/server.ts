@@ -49,6 +49,22 @@ const startServer = async () => {
         cookieNames: req.headers.cookie ? req.headers.cookie.split(';').map(c => c.trim().split('=')[0]) : [],
       });
       
+      // Log response headers for debugging
+      const originalSetHeader = res.setHeader;
+      res.setHeader = function(name, value) {
+        if (name.toLowerCase() === 'set-cookie') {
+          console.log('[Better Auth] Set-Cookie header:', {
+            name: name,
+            value: Array.isArray(value) 
+              ? value.map(v => typeof v === 'string' ? v.substring(0, 100) : String(v).substring(0, 100))
+              : typeof value === 'string' 
+                ? value.substring(0, 100)
+                : String(value).substring(0, 100)
+          });
+        }
+        return originalSetHeader.call(this, name, value);
+      };
+      
       // Log response for get-session specifically
       if (req.url.includes('get-session')) {
         const originalSend = res.send;

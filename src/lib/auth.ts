@@ -52,14 +52,14 @@ export const getAuth = () => {
           enabled: false,
         },
         cookies: {
-          // For cross-origin deployment (Vercel + Render), use 'none' with Secure
+          // For cross-origin deployment, use 'none' with Secure
           // For same-origin (localhost), use 'lax'
           sameSite: (isProduction && isCrossOrigin) ? 'none' : 'lax',
           // Explicitly set path to root for all requests
           path: '/',
-          // For cross-origin, set domain to backend domain so browser knows which domain the cookie belongs to
-          // For same-origin (localhost), don't set domain
-          domain: (isProduction && isCrossOrigin) ? backendDomain : undefined,
+          // Don't set domain for cross-origin - let browser handle it automatically
+          // Setting domain explicitly can cause cookie rejection in cross-origin scenarios
+          domain: undefined,
           // Add cookie hooks for debugging
           setCookie: (cookie: any) => {
             console.log('[Better Auth] Setting cookie:', {
