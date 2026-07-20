@@ -40,38 +40,6 @@ export const getFavoritesCollection = (): Collection => {
 export const initializeIndexes = async (): Promise<void> => {
   const db = getDb();
 
-  // Better Auth collections (created by Better Auth)
-  // These collections are automatically created by Better Auth, but we ensure indexes exist
-  const sessionCollection = db.collection('session');
-  const userCollection = db.collection('user');
-  const accountCollection = db.collection('account');
-  
-  // Session indexes - Better Auth manages these, but we verify they exist
-  try {
-    await sessionCollection.createIndex({ userId: 1 });
-    await sessionCollection.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
-    console.log('[Better Auth] Session indexes verified');
-  } catch (error) {
-    console.log('[Better Auth] Session indexes may already exist:', (error as Error).message);
-  }
-  
-  // User indexes
-  try {
-    await userCollection.createIndex({ email: 1 }, { unique: true });
-    console.log('[Better Auth] User indexes verified');
-  } catch (error) {
-    console.log('[Better Auth] User indexes may already exist:', (error as Error).message);
-  }
-  
-  // Account indexes
-  try {
-    await accountCollection.createIndex({ userId: 1 });
-    await accountCollection.createIndex({ provider: 1, providerAccountId: 1 }, { unique: true });
-    console.log('[Better Auth] Account indexes verified');
-  } catch (error) {
-    console.log('[Better Auth] Account indexes may already exist:', (error as Error).message);
-  }
-
   // Profiles indexes
   await db.collection(COLLECTIONS.PROFILES).createIndex({ authUserId: 1 }, { unique: true });
   await db.collection(COLLECTIONS.PROFILES).createIndex({ email: 1 }, { unique: true });

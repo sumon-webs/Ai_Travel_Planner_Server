@@ -1,5 +1,6 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import { initializeAuth } from './lib/auth.js';
 import tripRoutes from './routes/tripRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
@@ -31,6 +32,9 @@ app.get('/health', (_req: Request, res: Response) => {
   });
 });
 
+// ── Better Auth Routes ────────────────────────────────────────────────────────
+// Auth routes will be mounted after initialization in server.ts
+
 // ── API Routes ────────────────────────────────────────────────────────────
 app.use('/api/trips', tripRoutes);
 app.use('/api/ai', aiRoutes);
@@ -48,4 +52,4 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
-export default app;
+export { app, initializeAuth };

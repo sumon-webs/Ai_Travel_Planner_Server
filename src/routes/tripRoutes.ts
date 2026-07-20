@@ -7,6 +7,7 @@ import {
   updateTrip,
   deleteTrip,
 } from '../controllers/tripController.js';
+import { requireAuth } from '../middlewares/auth.js';
 
 const router = Router();
 
@@ -14,19 +15,19 @@ const router = Router();
 router.get('/public', getPublicTrips);
 
 /**
- * GET  /api/trips        — list all trips (public)
- * POST /api/trips        — create a new trip (public)
+ * GET  /api/trips        — list all trips (protected)
+ * POST /api/trips        — create a new trip (protected)
  */
-router.get('/', getMyTrips);
-router.post('/', addTrip);
+router.get('/', requireAuth, getMyTrips);
+router.post('/', requireAuth, addTrip);
 
 /**
- * GET    /api/trips/:id  — fetch a single trip by ID
- * PUT    /api/trips/:id  — update a trip (partial or full)
- * DELETE /api/trips/:id  — permanently delete a trip
+ * GET    /api/trips/:id  — fetch a single trip by ID (public)
+ * PUT    /api/trips/:id  — update a trip (protected)
+ * DELETE /api/trips/:id  — permanently delete a trip (protected)
  */
 router.get('/:id', getTripById);
-router.put('/:id', updateTrip);
-router.delete('/:id', deleteTrip);
+router.put('/:id', requireAuth, updateTrip);
+router.delete('/:id', requireAuth, deleteTrip);
 
 export default router;

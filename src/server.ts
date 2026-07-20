@@ -2,9 +2,11 @@ import dotenv from 'dotenv';
 // Load environment variables as early as possible
 dotenv.config();
 
-import app from "./app.js";
+import { app, initializeAuth } from "./app.js";
+import { toNodeHandler } from 'better-auth/node';
 import { connectDB, closeDb } from "./config/db.js";
 import { initializeIndexes } from "./config/collections.js";
+import { seedDemoUser } from "./seed/demoUser.js";
 
 const PORT = process.env.PORT || 5000;
 
@@ -22,6 +24,16 @@ const startServer = async () => {
     console.log('Database name:', db.databaseName);
     console.log('Collections:', (await db.listCollections().toArray()).map(c => c.name));
     console.log('=======================================');
+
+    // Initialize Better Auth after database is connected
+    const auth = initializeAuth();
+    console.log('Better Auth initialized successfully');
+
+    // Mount Better Auth routes
+    app.all('/api/auth/*', toNodeHandler(auth));
+
+    // Seed demo user
+    await seedDemoUser();
 
     // Start listening
     app.listen(PORT, () => {

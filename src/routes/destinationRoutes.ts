@@ -8,6 +8,7 @@ import {
   getDestinationStats,
   getTrendingDestinations,
 } from '../controllers/destinationController.js';
+import { requireAuth } from '../middlewares/auth.js';
 
 const router = Router();
 
@@ -20,16 +21,16 @@ router.get('/stats', getDestinationStats);
 /** GET /api/destinations/trending  — Trending destinations (public) */
 router.get('/trending', getTrendingDestinations);
 
-/** GET /api/destinations/my    — Current user's destinations (public) */
-router.get('/my', getMyDestinations);
+/** GET /api/destinations/my    — Current user's destinations (protected) */
+router.get('/my', requireAuth, getMyDestinations);
 
 /** GET /api/destinations/:id   — Single destination (public) */
 router.get('/:id', getDestinationById);
 
-/** POST /api/destinations      — Create destination (public) */
-router.post('/', addDestination);
+/** POST /api/destinations      — Create destination (protected) */
+router.post('/', requireAuth, addDestination);
 
-/** DELETE /api/destinations/:id — Delete destination (public) */
-router.delete('/:id', deleteDestination);
+/** DELETE /api/destinations/:id — Delete destination (protected) */
+router.delete('/:id', requireAuth, deleteDestination);
 
 export default router;
