@@ -29,6 +29,13 @@ export const initializeAuth = () => {
       useSecureCookies: isProduction,
       cookiePrefix: 'better-auth',
     },
+    account: {
+      accountLinking: {
+        enabled: true,
+        trustedProviders: ['google', 'email-password'],
+        allowDifferentEmails: false,
+      },
+    },
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: false,
