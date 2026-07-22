@@ -5,6 +5,7 @@ import tripRoutes from './routes/tripRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import feedbackRoutes from './routes/feedbackRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 const app = express();
 // Trust proxy - required for production deployment behind reverse proxy (Render)
 app.set('trust proxy', true);
@@ -59,6 +60,7 @@ app.use('/api/trips', tripRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/users', userRoutes);
 // Global Error Handler
 app.use((err, _req, res, _next) => {
     console.error(err.stack);
