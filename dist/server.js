@@ -5,7 +5,6 @@ import { app, initializeAuth } from "./app.js";
 import { toNodeHandler } from 'better-auth/node';
 import { connectDB, closeDb } from "./config/db.js";
 import { initializeIndexes } from "./config/collections.js";
-import { seedDemoUser } from "./seed/demoUser.js";
 const PORT = process.env.PORT || 5000;
 const startServer = async () => {
     try {
@@ -24,8 +23,6 @@ const startServer = async () => {
         console.log('Better Auth initialized successfully');
         // Mount Better Auth routes
         app.all('/api/auth/*', toNodeHandler(auth));
-        // Seed demo user
-        await seedDemoUser();
         // Start listening
         app.listen(PORT, () => {
             console.log(`Server is listening on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
