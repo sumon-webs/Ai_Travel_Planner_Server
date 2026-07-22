@@ -14,9 +14,16 @@ const app: Application = express();
 app.set('trust proxy', true);
 
 // CORS — must be before all handlers
+const allowedOrigins = [
+  'http://localhost:3000',
+  process.env.CLIENT_URL,
+].filter(Boolean) as string[];
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: allowedOrigins,
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
 
 // Body parsing middleware
