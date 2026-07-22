@@ -100,6 +100,15 @@ export const initializeAuth = () => {
         secure: true,
         partitioned: true,
       },
+      cookies: {
+        state: {
+          attributes: {
+            sameSite: 'none',
+            secure: true,
+            httpOnly: true,
+          },
+        },
+      },
     },
     account: {
       accountLinking: {
