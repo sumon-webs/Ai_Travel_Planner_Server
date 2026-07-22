@@ -78,7 +78,7 @@ export const initializeAuth = () => {
             cookies: {
                 sessionToken: {
                     name: 'better-auth.session_token',
-                    attributes: {
+                    options: {
                         sameSite: 'none',
                         secure: true,
                     },
