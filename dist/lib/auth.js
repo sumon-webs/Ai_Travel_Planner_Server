@@ -55,7 +55,6 @@ export const initializeAuth = () => {
     const clientURL = process.env.CLIENT_URL || 'http://localhost:3000';
     const allowedOrigins = [
         'http://localhost:3000',
-        'https://ai-travel-planner-client-psi.vercel.app',
         clientURL,
     ].filter(Boolean);
     console.log('[BETTER AUTH INIT] baseURL:', process.env.BETTER_AUTH_URL || 'http://localhost:5000/api/auth');
