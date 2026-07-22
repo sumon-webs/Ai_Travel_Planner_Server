@@ -12,10 +12,23 @@ app.set('trust proxy', true);
 // CORS — must be before all handlers
 const allowedOrigins = [
     'http://localhost:3000',
+    'https://ai-travel-planner-client-psi.vercel.app',
     process.env.CLIENT_URL,
 ].filter(Boolean);
+console.log('[CORS] Allowed origins:', allowedOrigins);
 app.use(cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin)
+            return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        }
+        else {
+            console.log('[CORS] Origin blocked:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
