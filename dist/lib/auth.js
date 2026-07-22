@@ -51,6 +51,7 @@ export const initializeAuth = () => {
     console.log('[BETTER AUTH INIT] baseURL:', process.env.BETTER_AUTH_URL || 'http://localhost:5000/api/auth');
     console.log('[BETTER AUTH INIT] trustedOrigins:', allowedOrigins);
     console.log('[BETTER AUTH INIT] NODE_ENV:', process.env.NODE_ENV);
+    console.log('[BETTER AUTH INIT] isProduction:', isProduction);
     authInstance = betterAuth({
         baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:5000/api/auth',
         secret: process.env.BETTER_AUTH_SECRET,
@@ -69,7 +70,7 @@ export const initializeAuth = () => {
             },
         },
         advanced: {
-            useSecureCookies: isProduction,
+            useSecureCookies: true,
             cookiePrefix: 'better-auth',
             crossSubDomainCookies: {
                 enabled: true,
@@ -78,8 +79,8 @@ export const initializeAuth = () => {
                 sessionToken: {
                     name: 'better-auth.session_token',
                     attributes: {
-                        sameSite: isProduction ? 'none' : 'lax',
-                        secure: isProduction,
+                        sameSite: 'none',
+                        secure: true,
                     },
                 },
             },
