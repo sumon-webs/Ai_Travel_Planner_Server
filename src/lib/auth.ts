@@ -53,6 +53,7 @@ export const initializeAuth = () => {
   const clientURL = process.env.CLIENT_URL || 'http://localhost:3000';
   const allowedOrigins = [
     'http://localhost:3000',
+    'https://ai-travel-planner-client-psi.vercel.app',
     clientURL,
   ].filter(Boolean);
 
