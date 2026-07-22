@@ -75,12 +75,10 @@ export const initializeAuth = () => {
             crossSubDomainCookies: {
                 enabled: true,
             },
-        },
-        sessionCookie: {
-            cookieName: 'better-auth.session_token',
-            attributes: {
+            defaultCookieAttributes: {
                 sameSite: 'none',
                 secure: true,
+                partitioned: true,
             },
         },
         account: {
