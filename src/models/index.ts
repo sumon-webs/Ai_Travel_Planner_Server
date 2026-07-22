@@ -1,5 +1,3 @@
-export type { IUser, ITravelPreferences } from './User.js';
-
 export type {
   ITrip,
   IItineraryDay,

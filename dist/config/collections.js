@@ -1,16 +1,12 @@
 import { getDb } from './db.js';
 // Collection names
 export const COLLECTIONS = {
-    PROFILES: 'profiles',
     TRIPS: 'trips',
     FEEDBACK: 'feedback',
     CHAT_HISTORIES: 'chat_histories',
     FAVORITES: 'favorites',
 };
 // Get typed collection accessors
-export const getProfilesCollection = () => {
-    return getDb().collection(COLLECTIONS.PROFILES);
-};
 export const getTripsCollection = () => {
     return getDb().collection(COLLECTIONS.TRIPS);
 };
@@ -26,9 +22,6 @@ export const getFavoritesCollection = () => {
 // Initialize indexes for collections
 export const initializeIndexes = async () => {
     const db = getDb();
-    // Profiles indexes
-    await db.collection(COLLECTIONS.PROFILES).createIndex({ authUserId: 1 }, { unique: true });
-    await db.collection(COLLECTIONS.PROFILES).createIndex({ email: 1 }, { unique: true });
     // Trips indexes
     await db.collection(COLLECTIONS.TRIPS).createIndex({ createdBy: 1, createdAt: -1 });
     await db.collection(COLLECTIONS.TRIPS).createIndex({ userId: 1, createdAt: -1 });
