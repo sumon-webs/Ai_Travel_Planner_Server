@@ -36,6 +36,15 @@ app.use(cors({
 // Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// Log incoming cookies for debugging OAuth state
+app.use((req, _res, next) => {
+    if (req.path.includes('/auth/')) {
+        console.log('[REQUEST COOKIES] Path:', req.path);
+        console.log('[REQUEST COOKIES] Cookie header:', req.headers.cookie);
+        console.log('[REQUEST COOKIES] All cookies:', req.headers.cookie?.split(';').map(c => c.trim()));
+    }
+    next();
+});
 // Health check endpoint (for verification purposes)
 app.get('/health', (_req, res) => {
     res.status(200).json({

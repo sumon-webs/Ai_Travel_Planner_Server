@@ -17,6 +17,16 @@ const customFetch = async (url, options) => {
         const duration = Date.now() - startTime;
         console.log('[BETTER AUTH FETCH] Status:', response.status);
         console.log('[BETTER AUTH FETCH] Duration:', duration, 'ms');
+        // Log Set-Cookie headers for debugging OAuth state
+        const setCookieHeaders = response.headers.getSetCookie();
+        if (setCookieHeaders && setCookieHeaders.length > 0) {
+            console.log('[BETTER AUTH FETCH] Set-Cookie headers:', setCookieHeaders);
+            setCookieHeaders.forEach(cookie => {
+                if (cookie.includes('state') || cookie.includes('session')) {
+                    console.log('[BETTER AUTH FETCH] IMPORTANT COOKIE:', cookie);
+                }
+            });
+        }
         // Log response body for debugging
         const responseClone = response.clone();
         try {
