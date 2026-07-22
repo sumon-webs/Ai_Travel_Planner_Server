@@ -1,5 +1,5 @@
 // Supported item types that can be favorited
-export type FavoriteItemType = 'trip' | 'place' | 'activity' | 'destination';
+export type FavoriteItemType = 'trip' | 'place' | 'activity';
 
 // Flexible metadata for each item type
 export interface IFavoriteMetadata {

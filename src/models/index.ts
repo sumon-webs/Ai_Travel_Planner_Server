@@ -16,6 +16,4 @@ export type { IFavorite, IFavoriteMetadata, FavoriteItemType } from './Favorite.
 
 export type { IChatHistory, IChatMessage, MessageRole } from './ChatHistory.js';
 
-export type { IDestination } from './Destination.js';
-
 export type { IFeedback } from './Feedback.js';

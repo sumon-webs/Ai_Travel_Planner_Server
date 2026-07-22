@@ -4,7 +4,6 @@ import { initializeAuth } from './lib/auth.js';
 import tripRoutes from './routes/tripRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
-import destinationRoutes from './routes/destinationRoutes.js';
 import feedbackRoutes from './routes/feedbackRoutes.js';
 
 
@@ -69,7 +68,6 @@ app.get('/health', (_req: Request, res: Response) => {
 app.use('/api/trips', tripRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/chats', chatRoutes);
-app.use('/api/destinations', destinationRoutes);
 app.use('/api/feedback', feedbackRoutes);
 
 

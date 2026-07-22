@@ -5,7 +5,6 @@ import { getDb } from './db.js';
 export const COLLECTIONS = {
   PROFILES: 'profiles',
   TRIPS: 'trips',
-  DESTINATIONS: 'destinations',
   FEEDBACK: 'feedback',
   CHAT_HISTORIES: 'chat_histories',
   FAVORITES: 'favorites',
@@ -18,10 +17,6 @@ export const getProfilesCollection = (): Collection => {
 
 export const getTripsCollection = (): Collection => {
   return getDb().collection(COLLECTIONS.TRIPS);
-};
-
-export const getDestinationsCollection = (): Collection => {
-  return getDb().collection(COLLECTIONS.DESTINATIONS);
 };
 
 export const getFeedbackCollection = (): Collection => {
@@ -48,9 +43,6 @@ export const initializeIndexes = async (): Promise<void> => {
   await db.collection(COLLECTIONS.TRIPS).createIndex({ createdBy: 1, createdAt: -1 });
   await db.collection(COLLECTIONS.TRIPS).createIndex({ userId: 1, createdAt: -1 });
   await db.collection(COLLECTIONS.TRIPS).createIndex({ isPublic: 1, createdAt: -1 });
-
-  // Destinations indexes
-  await db.collection(COLLECTIONS.DESTINATIONS).createIndex({ userId: 1 });
 
   // Feedback indexes
   await db.collection(COLLECTIONS.FEEDBACK).createIndex({ createdAt: -1 });
