@@ -98,7 +98,6 @@ export const initializeAuth = () => {
       defaultCookieAttributes: {
         sameSite: 'none',
         secure: true,
-        partitioned: true,
       },
       cookies: {
         state: {
